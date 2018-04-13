@@ -1,22 +1,29 @@
 {
-  "observable_host": "http://site.com",
-  "mailer": {
-    "transport": {
-      "service": "Gmail",
-      "host" : "smtp.gmail.com",
-      "port": 587,
-      "secure": false,
-      "auth": {
-        "user": "username@mail.com",
-        "pass": "password"
-      }
+    "observable_host": "http://site.com",
+    "mailer": {
+        "transport": {
+          "service": "Gmail",
+          "host" : "smtp.gmail.com",
+          "port": 587,
+          "secure": false,
+          "auth": {
+            "user": "username@mail.com",
+            "pass": "password"
+          }
+        },
+        "info": {
+          "from": "support-system@mail.com",
+          "to": "username2@mail.com",
+          "cc": "username3@mail.com",
+          "subject": "Subject of the mail",
+          "text": "Content..."
+        }
     },
-    "info": {
-      "from": "support-system@mail.com",
-      "to": "username2@mail.com",
-      "cc": "username3@mail.com",
-      "subject": "Subject of the mail",
-      "text": "Content..."
+    "scheduler": {
+      "verifyTheScript": {
+        "repeat": "everyday",
+        "hour": 9,
+        "minute": 5
+      }
     }
-  }
 }

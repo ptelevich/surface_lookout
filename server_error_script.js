@@ -17,12 +17,17 @@ function sendEmailWithResult(resultMessage)
 
     mailserverifo.sendMail(Mailinfo, function(error, info){
         if (error) {
-            console.log(error);
+            stdOut(error);
         } else {
-            console.log('Email Send Success: ' + info.response);
+            stdOut('Email Send Success: ' + info.response);
         }
     });
 
+}
+
+function stdOut(message)
+{
+    console.log(message);
 }
 
 var req_total = 10,
@@ -32,18 +37,21 @@ var req_total = 10,
 
 var intervalID = setInterval(function timerik()  {
 
+    if (typeof configSettings.observable_host == 'undefined') {
+        stdOut('Please check the config for filling all parameters completely');
+        clearInterval(intervalID); //end of Life
+        return false;
+    }
+
     var j = ++i;
 
     if(j == req_total){
         clearInterval(intervalID); //end of Life
     }
 
-    console.log(j); //write to console  task number
-
     http.get(configSettings.observable_host, function (response){
-        console.log(response.statusCode);
         if (response.statusCode !== 200) {
-            console.log('not 200');
+            stdOut('Status not 200');
             error_attempt--;
             if(error_attempt <= 0){
                 sendEmailWithResult(configSettings.observable_host +' unavailable');
@@ -51,17 +59,31 @@ var intervalID = setInterval(function timerik()  {
                 return false;
             }
         } else {
-            var curdate = new Date();
-            console.log(configSettings.observable_host +' works fine. CurMin-'+curdate.getMinutes());
-            sendEmailWithResult(configSettings.observable_host +' works fine');
-            if (curdate.getMinutes() == 20) {
-                sendEmailWithResult(configSettings.observable_host +' works fine');
+            var currentDate = new Date();
+            stdOut('Current Time: '+currentDate.getHours()+':'+currentDate.getMinutes());
+            stdOut(configSettings.observable_host +' works fine.');
+            if (
+                typeof configSettings.scheduler != 'undefined' &&
+                typeof configSettings.scheduler.verifyTheScript != 'undefined' &&
+                typeof configSettings.scheduler.verifyTheScript.repeat != 'undefined'
+            ) {
+                var confHour = parseInt(configSettings.scheduler.verifyTheScript.hour);
+                var confMinute = parseInt(configSettings.scheduler.verifyTheScript.minute);
+                stdOut('Repeat: '+configSettings.scheduler.verifyTheScript.repeat+' at '+confHour+':'+confMinute);
+                if (configSettings.scheduler.verifyTheScript.repeat === 'everyday') {
+                    if (
+                        currentDate.getHours() == confHour  &&
+                        currentDate.getMinutes() == confMinute
+                    ) {
+                        sendEmailWithResult(configSettings.observable_host +' works fine');
+                    }
+                }
             }
             clearInterval(intervalID); //end of Life
             return true;
         }
     }).on("error", (err) => {
-        console.log(configSettings.observable_host +' unavailable');
+        stdOut(configSettings.observable_host +' unavailable');
         sendEmailWithResult(configSettings.observable_host +' unavailable');
         clearInterval(intervalID); //end of Life
         return false;
