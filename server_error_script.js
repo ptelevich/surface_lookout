@@ -22,21 +22,23 @@ function sendEmailWithResult(resultMessage)
         },
     );
 
-    if (typeof schedulerConfigList.to != 'undefined' && schedulerConfigList.to) {
-        Mailinfo.to = schedulerConfigList.to;
-    }
+    if (typeof schedulerConfigList !== 'undefined') {
+        if (typeof schedulerConfigList.to != 'undefined' && schedulerConfigList.to) {
+            Mailinfo.to = schedulerConfigList.to;
+        }
 
-    if (typeof schedulerConfigList.cc != 'undefined' && schedulerConfigList.cc) {
-        Mailinfo.cc = schedulerConfigList.cc;
-    }
+        if (typeof schedulerConfigList.cc != 'undefined' && schedulerConfigList.cc) {
+            Mailinfo.cc = schedulerConfigList.cc;
+        }
 
-    if (typeof schedulerConfigList.subject != 'undefined' && schedulerConfigList.subject) {
-        Mailinfo.subject = schedulerConfigList.subject;
-    }
+        if (typeof schedulerConfigList.subject != 'undefined' && schedulerConfigList.subject) {
+            Mailinfo.subject = schedulerConfigList.subject;
+        }
 
 
-    if (typeof schedulerConfigList.text != 'undefined' && schedulerConfigList.text) {
-        Mailinfo.text = schedulerConfigList.text;
+        if (typeof schedulerConfigList.text != 'undefined' && schedulerConfigList.text) {
+            Mailinfo.text = schedulerConfigList.text;
+        }
     }
 
     mailserverifo.sendMail(Mailinfo, function(error, info){
