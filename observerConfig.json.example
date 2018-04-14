@@ -20,10 +20,30 @@
         }
     },
     "scheduler": {
-      "verifyTheScript": {
-        "repeat": "everyday",
-        "hour": 9,
-        "minute": 5
+        "verifyHostStatus": {
+          "everyday": {
+            "to": "",
+            "cc": "",
+            "subject": "",
+            "text": "",
+            "state": "on",
+            "hour": 1,
+            "minute": 2
+          },
+          "everyhour": {
+            "state": "off",
+            "to": "",
+            "cc": "",
+            "subject": "",
+            "text": ""
+          },
+          "everyminute": {
+            "state": "off",
+            "to": "",
+            "cc": "",
+            "subject": "",
+            "text": ""
+          }
+        }
       }
-    }
 }

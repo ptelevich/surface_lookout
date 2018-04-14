@@ -3,6 +3,13 @@ const configSettings = require("./observerConfig");
 const nodemailer = require('nodemailer');
 const http = require("http");
 
+var schedulerConfigList;
+
+function schedulerConfig(config)
+{
+    schedulerConfigList = config;
+}
+
 function sendEmailWithResult(resultMessage)
 {
     let mailserverifo = nodemailer
@@ -14,6 +21,23 @@ function sendEmailWithResult(resultMessage)
             "text": resultMessage
         },
     );
+
+    if (typeof schedulerConfigList.to != 'undefined' && schedulerConfigList.to) {
+        Mailinfo.to = schedulerConfigList.to;
+    }
+
+    if (typeof schedulerConfigList.cc != 'undefined' && schedulerConfigList.cc) {
+        Mailinfo.cc = schedulerConfigList.cc;
+    }
+
+    if (typeof schedulerConfigList.subject != 'undefined' && schedulerConfigList.subject) {
+        Mailinfo.subject = schedulerConfigList.subject;
+    }
+
+
+    if (typeof schedulerConfigList.text != 'undefined' && schedulerConfigList.text) {
+        Mailinfo.text = schedulerConfigList.text;
+    }
 
     mailserverifo.sendMail(Mailinfo, function(error, info){
         if (error) {
@@ -30,9 +54,9 @@ function stdOut(message)
     console.log(message);
 }
 
-var req_total = 10,
-    req_per_sec = 10,
-    error_attempt = 3,
+var req_total = configSettings.generalConfig.req_total,
+    req_per_sec = configSettings.generalConfig.req_per_sec,
+    error_attempt = configSettings.generalConfig.error_attempt,
     i = 0;
 
 var intervalID = setInterval(function timerik()  {
@@ -64,24 +88,46 @@ var intervalID = setInterval(function timerik()  {
             stdOut(configSettings.observable_host +' works fine.');
             if (
                 typeof configSettings.scheduler != 'undefined' &&
-                typeof configSettings.scheduler.verifyTheScript != 'undefined' &&
-                typeof configSettings.scheduler.verifyTheScript.repeat != 'undefined'
+                typeof configSettings.scheduler.verifyHostStatus != 'undefined'
             ) {
-                var confHour = parseInt(configSettings.scheduler.verifyTheScript.hour);
-                var confMinute = parseInt(configSettings.scheduler.verifyTheScript.minute);
-                stdOut('Repeat: '+configSettings.scheduler.verifyTheScript.repeat+' at '+confHour+':'+confMinute);
-                if (configSettings.scheduler.verifyTheScript.repeat === 'everyday') {
+                if (
+                    typeof configSettings.scheduler.verifyHostStatus.everyday != 'undefined' &&
+                    configSettings.scheduler.verifyHostStatus.everyday.state == 'on'
+                ) {
+                    var confHour = parseInt(configSettings.scheduler.verifyHostStatus.everyday.hour);
+                    var confMinute = parseInt(configSettings.scheduler.verifyHostStatus.everyday.minute);
+                    stdOut('Repeat everyday: at '+confHour+':'+confMinute);
                     if (
                         currentDate.getHours() == confHour  &&
                         currentDate.getMinutes() == confMinute
                     ) {
+                        schedulerConfig(configSettings.scheduler.verifyHostStatus.everyday);
+                        stdOut('Each day');
                         sendEmailWithResult(configSettings.observable_host +' works fine');
                     }
                 }
+                if(
+                    typeof configSettings.scheduler.verifyHostStatus.everyhour != 'undefined' &&
+                    configSettings.scheduler.verifyHostStatus.everyhour.state == 'on'
+                ) {
+                    if (currentDate.getMinutes() == 0) {
+                        schedulerConfig(configSettings.scheduler.verifyHostStatus.everyhour);
+                        stdOut('Each hour');
+                        sendEmailWithResult(configSettings.observable_host +' works fine');
+                    }
+                }
+                if(
+                    typeof configSettings.scheduler.verifyHostStatus.everyminute != 'undefined' &&
+                    configSettings.scheduler.verifyHostStatus.everyminute.state == 'on'
+                ) {
+                    schedulerConfig(configSettings.scheduler.verifyHostStatus.everyminute);
+                    stdOut('Each minute');
+                    sendEmailWithResult(configSettings.observable_host +' works fine');
+                }
             }
-            clearInterval(intervalID); //end of Life
-            return true;
         }
+        clearInterval(intervalID); //end of Life
+        return true;
     }).on("error", (err) => {
         stdOut(configSettings.observable_host +' unavailable');
         sendEmailWithResult(configSettings.observable_host +' unavailable');
