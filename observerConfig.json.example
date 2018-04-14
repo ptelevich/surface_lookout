@@ -1,5 +1,10 @@
 {
     "observable_host": "http://site.com",
+    "generalConfig": {
+        "req_total": 10,
+        "req_per_sec": 1,
+        "error_attempt": 3
+    },
     "mailer": {
         "transport": {
           "service": "Gmail",
