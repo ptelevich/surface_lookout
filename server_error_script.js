@@ -101,13 +101,13 @@ var intervalID = setInterval(function timerik()  {
                         if (schedulerItem.state == 'on') {
                             var confHour = parseInt(schedulerItem.hour);
                             var confMinute = parseInt(schedulerItem.minute);
-                            stdOut('Repeat everyday: at '+confHour+':'+confMinute);
+                            stdOut('Repeat everyday - on: at '+confHour+':'+confMinute);
                             if (
                                 currentDate.getHours() == confHour  &&
                                 currentDate.getMinutes() == confMinute
                             ) {
+                                stdOut('executed');
                                 schedulerConfig(schedulerItem);
-                                stdOut('Each day');
                                 sendEmailWithResult(configSettings.observable_host +' works fine');
                             }
                         }
@@ -117,9 +117,10 @@ var intervalID = setInterval(function timerik()  {
                     typeof configSettings.scheduler.verifyHostStatus.everyhour != 'undefined' &&
                     configSettings.scheduler.verifyHostStatus.everyhour.state == 'on'
                 ) {
+                    stdOut('Repeat everyhour - on');
                     if (currentDate.getMinutes() == 0) {
+                        stdOut('executed');
                         schedulerConfig(configSettings.scheduler.verifyHostStatus.everyhour);
-                        stdOut('Each hour');
                         sendEmailWithResult(configSettings.observable_host +' works fine');
                     }
                 }
@@ -127,8 +128,9 @@ var intervalID = setInterval(function timerik()  {
                     typeof configSettings.scheduler.verifyHostStatus.everyminute != 'undefined' &&
                     configSettings.scheduler.verifyHostStatus.everyminute.state == 'on'
                 ) {
+                    stdOut('Repeat everyminute - on');
+                    stdOut('executed');
                     schedulerConfig(configSettings.scheduler.verifyHostStatus.everyminute);
-                    stdOut('Each minute');
                     sendEmailWithResult(configSettings.observable_host +' works fine');
                 }
             }
