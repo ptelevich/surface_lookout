@@ -25,30 +25,46 @@
         }
     },
     "scheduler": {
-        "verifyHostStatus": {
-          "everyday": {
+    "verifyHostStatus": {
+      "everyday": [
+          {
+            "state": "on",
+            "to": "some-new-username@mail.com",
+            "cc": "some-new-username2@mail.com",
+            "subject": "",
+            "text": "",
+            "hour": 9,
+            "minute": 5
+          },
+          {
+            "__comment__": "you can remove this block if it unnecessary, or leave with state=off",
+            "__comment__": "you will be able to create events/blocks as much as you wish",
+            "state": "off",
             "to": "",
             "cc": "",
             "subject": "",
             "text": "",
-            "state": "on",
-            "hour": 1,
-            "minute": 2
-          },
-          "everyhour": {
-            "state": "off",
-            "to": "",
-            "cc": "",
-            "subject": "",
-            "text": ""
-          },
-          "everyminute": {
-            "state": "off",
-            "to": "",
-            "cc": "",
-            "subject": "",
-            "text": ""
+            "hour": 10,
+            "minute": 11
           }
-        }
+      ],
+      "everyhour": {
+        "state": "off",
+        "to": "",
+        "cc": "",
+        "subject": "",
+        "text": ""
+      },
+      "everyminute": {
+        "state": "off",
+        "to": "",
+        "cc": "",
+        "subject": "",
+        "text": ""
       }
+    }
+    }
+    "messages": {
+
+    }
 }

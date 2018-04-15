@@ -94,19 +94,24 @@ var intervalID = setInterval(function timerik()  {
             ) {
                 if (
                     typeof configSettings.scheduler.verifyHostStatus.everyday != 'undefined' &&
-                    configSettings.scheduler.verifyHostStatus.everyday.state == 'on'
+                    typeof configSettings.scheduler.verifyHostStatus.everyday[0] != 'undefined'
                 ) {
-                    var confHour = parseInt(configSettings.scheduler.verifyHostStatus.everyday.hour);
-                    var confMinute = parseInt(configSettings.scheduler.verifyHostStatus.everyday.minute);
-                    stdOut('Repeat everyday: at '+confHour+':'+confMinute);
-                    if (
-                        currentDate.getHours() == confHour  &&
-                        currentDate.getMinutes() == confMinute
-                    ) {
-                        schedulerConfig(configSettings.scheduler.verifyHostStatus.everyday);
-                        stdOut('Each day');
-                        sendEmailWithResult(configSettings.observable_host +' works fine');
-                    }
+                    var schedulerEveryday = configSettings.scheduler.verifyHostStatus.everyday;
+                    schedulerEveryday.forEach(function(schedulerItem, i, arr) {
+                        if (schedulerItem.state == 'on') {
+                            var confHour = parseInt(schedulerItem.hour);
+                            var confMinute = parseInt(schedulerItem.minute);
+                            stdOut('Repeat everyday: at '+confHour+':'+confMinute);
+                            if (
+                                currentDate.getHours() == confHour  &&
+                                currentDate.getMinutes() == confMinute
+                            ) {
+                                schedulerConfig(schedulerItem);
+                                stdOut('Each day');
+                                sendEmailWithResult(configSettings.observable_host +' works fine');
+                            }
+                        }
+                    });
                 }
                 if(
                     typeof configSettings.scheduler.verifyHostStatus.everyhour != 'undefined' &&
