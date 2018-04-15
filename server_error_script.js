@@ -27,7 +27,7 @@ function sendEmailWithResult(resultMessage)
             Mailinfo.to = schedulerConfigList.to;
         }
 
-        if (typeof schedulerConfigList.cc != 'undefined' && schedulerConfigList.cc) {
+        if (typeof schedulerConfigList.cc != 'undefined' && (schedulerConfigList.cc || schedulerConfigList.cc == '')) {
             Mailinfo.cc = schedulerConfigList.cc;
         }
 
