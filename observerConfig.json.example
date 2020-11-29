@@ -3,7 +3,8 @@
     "generalConfig": {
         "req_total": 10,
         "req_per_sec": 1,
-        "error_attempt": 3
+        "error_attempt": 3,
+	  	"find_word": "This is optional field"
     },
     "mailer": {
         "transport": {
