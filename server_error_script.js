@@ -78,77 +78,86 @@ let intervalID = setInterval(function timerik()  {
     }
 
     http.get(configSettings.observable_host, function (response){
-        if (response.statusCode !== 200) {
-            response.on("data", function(chunk) {
+        let rawData = '';
+        response.on('data', (chunk) => { rawData += chunk; });
+        response.on('end', () => {
+            let find_word_exist = true;
+            if (
+                typeof configSettings.generalConfig.find_word !== 'undefined' &&
+                rawData.search(configSettings.generalConfig.find_word) === -1
+            ) {
+                find_word_exist = false;
+            }
+            if (response.statusCode !== 200 || !find_word_exist) {
                 let dt = dateTime.create();
                 let formatted = dt.format('Y-m-d_H-M-S');
-                fs.appendFile("./error_body_"+formatted+".html", chunk.toString(), function(err) {
+                fs.appendFile("./error_body_"+formatted+".html", rawData, function(err) {
                     if(err) {
                         return console.log(err);
                     }
                     console.log("The file was saved!");
                 });
-            });
-            stdOut('Status not 200');
-            error_attempt--;
-            if(error_attempt <= 0){
-                sendEmailWithResult(configSettings.observable_host +' unavailable');
-                clearInterval(intervalID); //end of Life
-                return false;
-            }
-        } else {
-            var currentDate = new Date();
-            stdOut('Current Time: '+currentDate.getHours()+':'+currentDate.getMinutes());
-            stdOut(configSettings.observable_host +' works fine.');
-            if (
-                typeof configSettings.scheduler != 'undefined' &&
-                typeof configSettings.scheduler.verifyHostStatus != 'undefined'
-            ) {
-                if (
-                    typeof configSettings.scheduler.verifyHostStatus.everyday != 'undefined' &&
-                    typeof configSettings.scheduler.verifyHostStatus.everyday[0] != 'undefined'
-                ) {
-                    var schedulerEveryday = configSettings.scheduler.verifyHostStatus.everyday;
-                    schedulerEveryday.forEach(function(schedulerItem, i, arr) {
-                        if (schedulerItem.state == 'on') {
-                            var confHour = parseInt(schedulerItem.hour);
-                            var confMinute = parseInt(schedulerItem.minute);
-                            stdOut('Repeat everyday - on: at '+confHour+':'+confMinute);
-                            if (
-                                currentDate.getHours() == confHour  &&
-                                currentDate.getMinutes() == confMinute
-                            ) {
-                                stdOut('executed');
-                                schedulerConfig(schedulerItem);
-                                sendEmailWithResult(configSettings.observable_host +' works fine');
-                            }
-                        }
-                    });
+                stdOut('Status not 200');
+                error_attempt--;
+                if(error_attempt <= 0){
+                    sendEmailWithResult(configSettings.observable_host +' unavailable');
+                    clearInterval(intervalID); //end of Life
                 }
-                if(
-                    typeof configSettings.scheduler.verifyHostStatus.everyhour != 'undefined' &&
-                    configSettings.scheduler.verifyHostStatus.everyhour.state == 'on'
+                return false;
+            } else {
+                var currentDate = new Date();
+                stdOut('Current Time: '+currentDate.getHours()+':'+currentDate.getMinutes());
+                stdOut(configSettings.observable_host +' works fine.');
+                if (
+                    typeof configSettings.scheduler != 'undefined' &&
+                    typeof configSettings.scheduler.verifyHostStatus != 'undefined'
                 ) {
-                    stdOut('Repeat everyhour - on');
-                    if (currentDate.getMinutes() == 0) {
+                    if (
+                        typeof configSettings.scheduler.verifyHostStatus.everyday != 'undefined' &&
+                        typeof configSettings.scheduler.verifyHostStatus.everyday[0] != 'undefined'
+                    ) {
+                        var schedulerEveryday = configSettings.scheduler.verifyHostStatus.everyday;
+                        schedulerEveryday.forEach(function(schedulerItem, i, arr) {
+                            if (schedulerItem.state == 'on') {
+                                var confHour = parseInt(schedulerItem.hour);
+                                var confMinute = parseInt(schedulerItem.minute);
+                                stdOut('Repeat everyday - on: at '+confHour+':'+confMinute);
+                                if (
+                                    currentDate.getHours() == confHour  &&
+                                    currentDate.getMinutes() == confMinute
+                                ) {
+                                    stdOut('executed');
+                                    schedulerConfig(schedulerItem);
+                                    sendEmailWithResult(configSettings.observable_host +' works fine');
+                                }
+                            }
+                        });
+                    }
+                    if(
+                        typeof configSettings.scheduler.verifyHostStatus.everyhour != 'undefined' &&
+                        configSettings.scheduler.verifyHostStatus.everyhour.state == 'on'
+                    ) {
+                        stdOut('Repeat everyhour - on');
+                        if (currentDate.getMinutes() == 0) {
+                            stdOut('executed');
+                            schedulerConfig(configSettings.scheduler.verifyHostStatus.everyhour);
+                            sendEmailWithResult(configSettings.observable_host +' works fine');
+                        }
+                    }
+                    if(
+                        typeof configSettings.scheduler.verifyHostStatus.everyminute != 'undefined' &&
+                        configSettings.scheduler.verifyHostStatus.everyminute.state == 'on'
+                    ) {
+                        stdOut('Repeat everyminute - on');
                         stdOut('executed');
-                        schedulerConfig(configSettings.scheduler.verifyHostStatus.everyhour);
+                        schedulerConfig(configSettings.scheduler.verifyHostStatus.everyminute);
                         sendEmailWithResult(configSettings.observable_host +' works fine');
                     }
                 }
-                if(
-                    typeof configSettings.scheduler.verifyHostStatus.everyminute != 'undefined' &&
-                    configSettings.scheduler.verifyHostStatus.everyminute.state == 'on'
-                ) {
-                    stdOut('Repeat everyminute - on');
-                    stdOut('executed');
-                    schedulerConfig(configSettings.scheduler.verifyHostStatus.everyminute);
-                    sendEmailWithResult(configSettings.observable_host +' works fine');
-                }
             }
-        }
-        clearInterval(intervalID); //end of Life
-        return true;
+            clearInterval(intervalID); //end of Life
+            return true;
+        });
     }).on("error", (err) => {
         stdOut(configSettings.observable_host +' unavailable');
         sendEmailWithResult(configSettings.observable_host +' unavailable');
