@@ -2,6 +2,8 @@
 const configSettings = require("./observerConfig");
 const nodemailer = require('nodemailer');
 const http = require("http");
+const fs = require('fs');
+var dateTime = require('node-datetime');
 
 var schedulerConfigList;
 
@@ -61,7 +63,7 @@ var req_total = configSettings.generalConfig.req_total,
     error_attempt = configSettings.generalConfig.error_attempt,
     i = 0;
 
-var intervalID = setInterval(function timerik()  {
+let intervalID = setInterval(function timerik()  {
 
     if (typeof configSettings.observable_host == 'undefined') {
         stdOut('Please check the config for filling all parameters completely');
@@ -77,6 +79,16 @@ var intervalID = setInterval(function timerik()  {
 
     http.get(configSettings.observable_host, function (response){
         if (response.statusCode !== 200) {
+            response.on("data", function(chunk) {
+                let dt = dateTime.create();
+                let formatted = dt.format('Y-m-d_H-M-S');
+                fs.appendFile("./error_body_"+formatted+".html", chunk.toString(), function(err) {
+                    if(err) {
+                        return console.log(err);
+                    }
+                    console.log("The file was saved!");
+                });
+            });
             stdOut('Status not 200');
             error_attempt--;
             if(error_attempt <= 0){
