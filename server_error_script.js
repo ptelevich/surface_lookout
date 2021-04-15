@@ -2,6 +2,8 @@
 const configSettings = require("./observerConfig");
 const nodemailer = require('nodemailer');
 const http = require("http");
+const https = require("https");
+const URL = require('url').URL;
 const fs = require('fs');
 var dateTime = require('node-datetime');
 
@@ -77,7 +79,11 @@ let intervalID = setInterval(function timerik()  {
         clearInterval(intervalID); //end of Life
     }
 
-    http.get(configSettings.observable_host, function (response){
+    let observable_url = new URL(configSettings.observable_host);
+    let httpClient = http;
+    httpClient = (observable_url.protocol == "https:") ? https : httpClient;
+
+    httpClient.get(configSettings.observable_host, function (response){
         let rawData = '';
         response.on('data', (chunk) => { rawData += chunk; });
         response.on('end', () => {
